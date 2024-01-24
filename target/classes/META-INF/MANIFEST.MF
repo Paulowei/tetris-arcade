@@ -1,0 +1,7 @@
+Main-Class: com.moderneinstein.arcade.reactive.tetris.StarterClass 
+Specification-Title: Tetris-Applet
+Specification-Version: 1.6
+Specification-Vendor: Paul Owei
+Implementation-Title: Tetris-Applet
+Implementation-Vendor: Paul Owei
+Implementation-Version: 1.6
