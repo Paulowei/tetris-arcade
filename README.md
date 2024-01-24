@@ -1,2 +1,2 @@
-# Snake.java
-The source code of an applet for snake in java
+#  Tetris.java
+An Tetris Applet for Desktop .
