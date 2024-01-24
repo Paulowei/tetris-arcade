@@ -7,8 +7,8 @@ An Tetris Applet for Desktop .
 - The top directional button  rotates the Tetris Block Clock-Wise ;  
 - The bottom directional button rotates the Anti-ClockWise ;
 - The Shift Button navigates to the pause menu from the Tetris Grid ;
-- The Alt Button navigates to the  Tetris Grid from the Pause Menu  ;
-- The End directional Button swaps the Current Block with the Tetris Block on hold ;
+- The Alt/Ctrl Button navigates to the  Tetris Grid from the Pause Menu  ;
+- The End Button swaps the Current Block with the Tetris Block on hold ;
 - To compile :
 - Remember to install maven before trying to compile this project ;
 - The project was built, and also compiled
