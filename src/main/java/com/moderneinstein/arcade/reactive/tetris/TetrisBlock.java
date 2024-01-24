@@ -24,7 +24,7 @@ public class TetrisBlock extends Component  {
 		public static final int[][] forms2 = {{-1,0},{0,0},{1,0},{2,0}} ;  //I-block
 		public static final int[][] forms3 = {{0,0},{0,1},{1,1},{1,0}}  ;  //Square-block
 		public static final int[][] forms4 = {{0,0},{0,1},{0,2},{1,0}} ;  //L-block-1
-		public static final int[][] forms5  = {{0,0},{0,1},{0,2},{-1,0}};  //L-block-2
+		public static final int[][] forms5 = {{0,0},{0,1},{0,2},{1,0}};  //L-block-2
 		public static final int[][] forms6={{0,0},{-1,0},{0,1},{1,0}} ;  //T-block ;
 		public static final int[][] forms7 = {{0,0},{1,0},{-1,1},{0,1}} ; //Z-block-2 ; 
 		public static final int[][]forms8 = {{0,0},{-1,0},{1,0},{1,1}} ;  //Z-block-1 ;

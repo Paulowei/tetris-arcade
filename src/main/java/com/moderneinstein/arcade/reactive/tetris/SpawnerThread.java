@@ -72,7 +72,6 @@ public class SpawnerThread  extends Thread{
         boolean trialsz =  Thread.currentThread().isAlive() ; 
         while( lapse>0){
             TetrisBlock created =  supplier.get() ; //.supply( ) ; //RandomBlock() ;   
-            if(!TetrisDetails.ensureBrick(created)){continue ; }
             queue.offer(created)  ;
             lapse = lapse-1; 
         }

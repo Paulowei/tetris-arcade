@@ -19,7 +19,7 @@ import java.util.List ;
 import java.util.ArrayList  ;
 import java.util.Arrays ; 
 import java.util.LinkedList ; 
-
+import java.util.Iterator ; 
 
  import java.util.function.Consumer ;
 import java.util.function.Predicate ;  
@@ -48,7 +48,8 @@ public class TetrisGrid extends JPanel{
     public static long times  ;  
     public LinkedList<TetrisBlock> stream  ; 
     public TetrisDetails details ;    
-    public long score ; 
+    public long score ;   
+    public TetrisBlock holder ; 
         /*   private int[]  options =  {0} ;
   //  public  int[]  DEFAULTS = {0}  ;  */
     //   grids.setOptions (0,1) ;   }
@@ -130,7 +131,7 @@ public class TetrisGrid extends JPanel{
     //  this.filled = new boolean[SPANSY][SPANSX] ; 
     //    bindings = new TreeMap<Integer,List<Consumer<Void>>>( ) ;   
      //   syncs = new SyncThread( ) ;
-    public TetrisGrid( ){  
+    public TetrisGrid( )  {  
         super( ) ;   
      this.configurePoint( ) ;        
         this.filled = new boolean[HEIGHT][WIDTH] ;  
@@ -141,7 +142,8 @@ public class TetrisGrid extends JPanel{
            details = new TetrisDetails(this)   ; 
         configureSpawner() ;   
          configureSyncs( ) ;     
-         configureBinds(bindings) ;  
+         configureBinds1(bindings) ;  
+         configureBinds2(bindings) ;    
        this.setLocation(60,60) ; 
         this.should = true ;      
         configureBrick() ; 
@@ -217,21 +219,25 @@ public class TetrisGrid extends JPanel{
          //       public void run(){  */      //    }}.run() ;
     public void updateBrick(){ 
             this.current.setDirection(new int[]{0,0}) ;   
-                  times = System.currentTimeMillis( ) ;  
+                 long verse = System.currentTimeMillis( ) ;  
             while(true){ 
-                if(System.currentTimeMillis()-times>3000){break ; }  
+                if(System.currentTimeMillis()-verse>3000){break ; }  
                 boolean first = Thread.currentThread().isAlive() ;
                 boolean cases = checkBrick(current) ; 
                 if(cases==false){ 
                     boolean second = Thread.currentThread().isInterrupted()  ; 
                      current.setDirection(new int[]{0,1}) ;  return  ; }
                long  temps = System.currentTimeMillis() ;    }   
-            TetrisBlock  newer= this.spawner.yields() ;  
+            TetrisBlock  newer= this.spawner.yields() ;    
+            while(!details.ensureBrick(newer)){
+                newer = spawner.yields( ) ;  
+            }
              updateFilled(this.current) ;  
             newer.setDirection(new int[]{0,1}) ;    
             this.current = newer ;    
             this.incrementScore(2l) ;   
-        }     
+        }      
+        //   if(!TetrisDetails.ensureBrick(created)){continue ; }
   //  updateFilled(Arrays.stream(current.deriveMarks()).toList()) ;  
     //System.gc() ; // System.out.println(44) ;  
       //  @Override  //   System.out.println( cases) ;
@@ -295,6 +301,14 @@ public class TetrisGrid extends JPanel{
         if(valueX<0){return false ;  } 
          if(valueY<0){return false ;  }
          return true ;  
+    }    
+    public  boolean CheckPoint(int valueX,int valueY){
+        if(valueY<0){return false ; } 
+        if( valueX<0 ){return false ; }   
+        if(valueY>=HEIGHT) {return false ; } 
+        if(valueX>=WIDTH) {return false ; } 
+        if(filled[valueY][valueX]==true){return false ;  }   
+        return true ; 
     }
     //  if(checks[parts[1]+1][parts[0]]==true ){
     public boolean  checkBrick(TetrisBlock subject){  
@@ -355,8 +369,17 @@ public class TetrisGrid extends JPanel{
             if(checks==true){starter.add(ce) ;  }  }  
         return starter ;     } 
 
-    public Map<Integer,List<Consumer<Void>>>  deriveBindings(){
-        return this.bindings   ;      
+    public Map<Integer,List<Consumer<Void>>>  deriveBindings(){  
+        Map<Integer,List<Consumer<Void>>> mapper = new TreeMap<Integer,List<Consumer<Void>>>()  ;
+        Iterator<Map.Entry<Integer,List<Consumer<Void>>>> iterator =  bindings.entrySet().iterator () ;   
+        Iterator<Integer> iterand = bindings.keySet ().iterator () ; 
+        while (iterand.hasNext()){
+            Integer keys = iterand.next () ;  
+            List<Consumer<Void>> value = bindings.get(keys) ; 
+            List<Consumer<Void>> listed = new ArrayList<Consumer<Void>>(value) ; 
+            mapper.put(Integer.valueOf (keys),listed) ; 
+        }
+         return  mapper ;   //this.bindings   ;      
     } 
   
     // if(posit[0]+brace[1]>=WIDTH){}  
@@ -422,7 +445,7 @@ public class TetrisGrid extends JPanel{
             return true  ; 
         }  
         
-    public void configureBinds(Map<Integer,List<Consumer<Void>>>  center){
+    public void configureBinds1(Map<Integer,List<Consumer<Void>>>  center){
          Integer value4 = KeyEvent.VK_UP ;
         Consumer<Void> consumer4  = new Consumer<Void>(){
             @Override 
@@ -447,8 +470,10 @@ public class TetrisGrid extends JPanel{
                 current.setPosition(lines) ;
                 current.ClockWise() ; 
             }
-        }  ;      
-        EventListener.update(value5,consumer5,center ) ; 
+        }  ;       
+        EventListener.update(value5,consumer5,center ) ;  
+    }  //   throws Exception
+    public void configureBinds2(Map<Integer,List<Consumer<Void>>> center ){
         Integer value6 = KeyEvent.VK_LEFT ; 
         Consumer<Void> consumer6 = new Consumer<Void>(){
             @Override 
@@ -473,8 +498,31 @@ public class TetrisGrid extends JPanel{
                 current.displace(1,0 ) ;    
             }
         } ; 
-        EventListener.update(value7,consumer7, center ) ; 
-    }      
+        EventListener.update(value7,consumer7, center ) ;  
+        Consumer<Void> consumer8 = new Consumer<Void>(){
+            @Override 
+            public  void accept(Void nulls){
+                if(holder==null){
+                    TetrisBlock  recent = stream.poll( ) ;   
+                    int[]  reach =  details.adjustBrick(recent,current.derivePosition( )) ;    
+                    if(reach[1]==-1){return ;  }  
+                    holder = current ;  
+                    current =recent ;  
+                    current.setPosition(reach) ;  //(holder.derivePosition( )) ; 
+                    current.setDirection(holder.deriveDirection( ))  ;
+                }else {
+                    TetrisBlock temps =  holder  ;  
+                    int[]  brace = details.adjustBrick(holder,current .derivePosition( )) ; 
+                    if (brace[0]==-1){return ; }
+                     holder= current ; 
+                    current = temps  ;    
+                    current.setPosition(brace ) ;  //(holder.derivePosition()) ; 
+                    current.setDirection(holder.deriveDirection( )) ;      }   
+                    long temps = System.currentTimeMillis() ; 
+                    while(System.currentTimeMillis()-temps<50){ } }  }  ;    
+            EventListener.update(KeyEvent.VK_END,consumer8,center ); 
+    }       
+               //  current.setDirection(new int[]{0,1}) ;  
     /*      for(int de=bytes.length-1;de>=0;de--){ 
                 if(bytes[de][1]+yields[1]>=WIDTH-1){}
                 if(filled[][bytes[de][0]+yields[0] ]) } */

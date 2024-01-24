@@ -24,9 +24,10 @@ import javax.sound.midi.spi.MidiFileReader ;
         /*  public TextField field6 ;   
         public TextField field4 ;  */  
         public static int OFFSETX = 45 ; 
-        public static int OFFSETY = 0 ;  // 25 ; 
-        public static int WIDTH =  TetrisGrid.SPANSX*5 ;  // 60 ;
-        public  static int HEIGHT =  TetrisGrid.HEIGHT*TetrisGrid.SPANSY ;    
+        public static int OFFSETY = -20 ;  // 25 ;  
+        public static int MULTIPLIER = 5 ; 
+        public static int WIDTH =  TetrisGrid.SPANSX*MULTIPLIER ;  // 60 ;
+        public  static int HEIGHT =  TetrisGrid.HEIGHT*TetrisGrid.SPANSY-OFFSETY ;    
         public static int SHIFTX = 0   ; 
         public static int SHIFTY  = TetrisGrid.SPANSY*5   ;   
         public static int[] point = {TetrisGrid.OFFSETX+TetrisGrid.WIDTH
@@ -56,19 +57,25 @@ import javax.sound.midi.spi.MidiFileReader ;
             LinkedList<TetrisBlock> linked = grids.stream  ;  //.clone() ;  
             Iterator<TetrisBlock> iterator = linked.iterator() ; 
              int lapse = 1 ;   
-             int alterY = 1 ;    
+             int alterY = 5 ;       
+             if(grids.holder!=null) {
+             TetrisBlock held = new TetrisBlock(grids.holder) ; 
+            held.setPosition( new int[]{TetrisGrid.WIDTH+4,1}) ;
+          //  alterY = alterY+5 ;  
+             held.paint(frames) ; }
              if(linked.size()<=limit){return ; }
              for(int  tr=1;tr<=limit;tr++){  
                 if(linked.size()<=tr){continue ; }
                 TetrisBlock current = linked.get(tr-1) ; 
                 TetrisBlock created = new TetrisBlock(current) ; 
                 created.setPosition(new int[]{TetrisGrid.WIDTH+4,alterY}) ; 
-                 created.paint(frames)  ; // created.paint(frames.create())    ;    
-            //    created.emplaceColor(current.deriveColor()) ;  
-                alterY = alterY +5 ; // SHIFTY ;   
-             }
+                 created.paint(frames)  ;  
+                alterY = alterY +5 ; 
+             } 
         }  
-        
+         // created.paint(frames.create())    ;     
+         // SHIFTY ;   
+            //    created.emplaceColor(current.deriveColor()) ;  
         /* while(lapse<=3&&iterator.hasNext()){
                 TetrisBlock current = iterator.next() ; 
                 TetrisBlock created = new TetrisBlock(current.deriveMarks()
@@ -155,19 +162,34 @@ import javax.sound.midi.spi.MidiFileReader ;
                  if(filled[point[1]+types[ft][1]][types[ft][0]+point[0]-1]==true){return  ; } }  */
 
     //    if(!validate(bytes[0]+crest[0],bytes[1]+crest[1])){return false ; } 
-    public static boolean ensureBrick(TetrisBlock temps ){ 
+    public  boolean ensureBrick(TetrisBlock temps ){ 
             int[][] nests = temps.deriveMarks() ;  
             int[] bytes = temps.derivePosition()  ; 
             int[] crest = temps.DeriveShifts() ;  
             for(int dr=0;dr<nests.length;dr++){
             if(bytes[1]+nests[dr][1]>=TetrisGrid.HEIGHT||bytes[1]+nests[dr][1]<0){return false ;} 
-            if(nests[dr][0]+bytes[0]>=TetrisGrid.WIDTH||bytes[0]+nests[dr][0]<0){return false ; } }
+            if(nests[dr][0]+bytes[0]>=TetrisGrid.WIDTH||bytes[0]+nests[dr][0]<0){return false ; }  
+            if (grids.filled[nests[dr][1]+bytes[1]][nests[dr][0]+bytes[0]]==true){return false ;}  }
             // for(int  vr=0;vr)  
             return true ; 
-        }    
+        }      
         public  void detach(){
             grids.remove(field5) ; 
             grids.validate()  ;
+        }   
+        public  int[]  adjustBrick(TetrisBlock bricks,int[]  begin){
+            int[] point =  new int[]{begin[0],begin[1]} ;  //bricks.derivePosition() ;  
+            int[][] marks = bricks.deriveMarks ()  ;    
+            int alterX = -1 ; 
+            for(int  tc=0;tc<=3;tc++){  
+                boolean allows = true ; 
+            for(int  ft=marks.length-1;ft>=0;ft--){  
+                boolean phase = grids.CheckPoint(marks[ft][0]+point[0],marks[ft][1]+point[1]) ;
+                if(phase==false){allows = false ; break ; }
+            }  
+            if(allows==true){return  point ;  } 
+             point[1]= point[1]+alterX ; }
+            return new int[] {-1,-1} ; 
         }
     /*    //
     }      if(posit[0]+ drift[0]-1>=WIDTH-1){return ;  }  
