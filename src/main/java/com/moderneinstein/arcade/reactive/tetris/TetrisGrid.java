@@ -349,14 +349,14 @@ public class TetrisGrid extends JPanel{
     public void eliminateRow(int row){  
         if(row>=HEIGHT){return ; }
         for( int cd=row;cd>=0;cd--){   
-            this.incrementScore(5l) ; 
             if(cd==0){filled[cd] = new boolean[WIDTH] ;
             Arrays.fill(filled[cd],false) ; continue ; }
             for( int df=WIDTH-1;df>=0;df--){
                 filled[cd][df] = filled[cd-1][df ];  
                 nested[cd][df] = nested[cd-1][df] ; 
             }
-        }
+        }  
+           this.incrementScore(5l) ; 
     }   
      // boolean state = false ; 
     public  List<Integer> probe(){
